@@ -1,0 +1,57 @@
+body,
+.btn-upload {
+  background: url("images/stressed_linen.png");
+}
+h1 {
+  font-family: 'Raleway', serif;
+  text-align: center;
+  font-size: 100px;
+}
+.pw-submit-btn {
+  margin: 5px 0;
+}
+.img-container {
+  width: 50%;
+  margin: 95px auto 0;
+  text-align: center;
+}
+.upload-container {
+  text-align: center;
+}
+canvas {
+  border-radius: 10px;
+}
+form {
+  width: 50%;
+  margin: 0 auto;
+}
+.btn-upload {
+  font-size: 150px;
+  background: none;
+  border: 0px;
+}
+.glyphicon-save {
+  font-size: 100px;
+}
+.encrypt-btn {
+  display: none;
+  text-align: center;
+  margin: 10px 0 auto;
+}
+.encrypt-pw,
+.pw-submit-btn {
+  margin: 0 auto;
+}
+#pw-form {
+  display: none;
+  background: url("images/navy_blue.png");
+}
+#password,
+.pw-submit-btn {
+  text-align: center;
+}
+.form-header h2 {
+  font-family: 'Raleway', serif;
+  text-align: center;
+  color: #696969;
+}

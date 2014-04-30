@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Black Box</title>
+  <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.min.css">
+  <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+  <link href="http://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet" />
+  <link rel="stylesheet" type="text/css" href="main.css">
+</head>
+<body>
+	<div class="container">
+		<div class="header-container">
+			<h1>Black Box</h1>
+		</div>
+		<div class="upload-container">
+			<label for="file"><span class="glyphicon glyphicon-save"></span></label><input type="file" id="userImage" style="display:none">
+		</div>
+
+		<div class="img-container">
+		</div>
+
+		<div class="encrypt-btn" id="show-form"><button class="btn"><i class="fa fa-lock"></i> ENCRYPT</button></div>
+
+		<form id="pw-form" role="form">
+			<div class="form-header">
+				<h2>Enter a passcode</h2>
+			</div>
+
+			<div class="form-group">
+				<input type="password" class="encrypt-pw input-group" id="password" placeholder="Password">
+
+				<div class="encrypt-btn"><button type="submit" class="pw-submit-btn btn btn-danger"><i class="fa fa-lock"></i> ENCRYPT</button></div>
+			</div>
+		</form>
+	</div>
+  <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/aes.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+  <script src="main.js"></script>
+
+</body>
+</html>
