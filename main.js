@@ -1,31 +1,46 @@
-function upload(filename){
+//uploads a file from user's computer
+//creates canvas of image file
+function createCanvas(filename, cb){
 	var reader = new FileReader();
 	reader.onload = function(e){
 		var img = new Image();
 		img.src = e.target.result;
 		var c = document.createElement("canvas");
-		$('.img-container').append(c);
+		c.setAttribute("id", "loaded-img");
 		c.width = img.width;
 		c.height = img.height;
 		var ctx = c.getContext("2d");
 		ctx.drawImage(img,0,0);
+		cb(c);
 		}
 	reader.readAsDataURL(document.getElementById('userImage').files[0]);
 	
 }
 
+//returns the width and height in an object
+function getDimensions(canvasId){
+	var Dimensions = {};
+	var canvas = document.getElementById(canvasId);
 
-function getCanvasImgData($canvas){
-	console.log('check');
-	var context = document.getElementsByTagName("canvas")[0].getContext("2d");
-	var imageData = context.getImageData(0,0, $canvas.width(), $canvas.height());
+	Dimensions['width'] = canvas.width;
+	Dimensions['height'] = canvas.height;
+
+	return Dimensions;
+
+}
+
+//returns the pixel array data of canvas element
+function getCanvasImgData(canvasId){
+	var canvas = document.getElementById(canvasId)
+	var context = canvas.getContext("2d");
+	var imageData = context.getImageData(0,0, canvas.width, canvas.height);
 	var pixelArray = imageData.data;
+
 	return pixelArray;
 
 }
 
 //convert array to string
-//remove alpha component
 function arrayToString(array){
 	var str = "";
 	for(var i=0; i<array.length; i+=4){
@@ -37,29 +52,42 @@ function arrayToString(array){
 	return str;
 }
 
-//encodes string to base64
-function stringToBase64(string){
-	var encodedData = window.btoa(string);
-	return encodedData;
-}
-
-//decodes base64 encoded string
-function base64ToString(base64){
-	var decodedData = window.atob(base64);
-	return decodedData;
-}
-
-//returns pixel data array
+//converts encrypted string of characters to
+//an array of unicode characters
 function stringToArray(string){
 	var arr = [];
-	for (var i=0; i<string.length; i++){
-		if (i != 0 && i % 4 === 0){
-			arr.push(255);
+	for(var i=0; i<string.length; i++){
+		if(i % 3 === 0 && i != 0){
+			arr.push(255)
 		}
+
 		arr.push(string.charCodeAt(i));
+
 	}
+
 	return arr;
 }
+
+//generates a unique hash value
+function generateUID() {
+    return ("0000" + (Math.random()*Math.pow(36,4) << 0).toString(36)).slice(-4)
+}
+
+//encrypts user uploaded image with given password
+function encryptLoadedImage($canvas, password){
+	var pixelArr = getCanvasImgData($canvas);
+	var stringifyedArray = arrayToString(pixelArr);
+	var encryptedImageData = CryptoJS.AES.encrypt(stringifyedArray, password);
+
+	return encryptedImageData;
+}
+
+var ImageObject = function(encryptedData, width, height){
+	this.encryptedData = encryptedData;
+	this.width = width;
+	this.height = height;
+}
+
 
 $(document).on('ready', function() {
 
@@ -69,7 +97,9 @@ $(document).on('ready', function() {
 
 	$("input:file").change(function(){
 		var filename = $(this).val();
-		upload(filename);
+		createCanvas(filename, function(c){
+			$('.img-container').append(c);
+		});
 		$('.encrypt-btn').toggle();
 		$('body').animate({scrollTop:$('div.img-container').offset().top}, 500);
 
@@ -81,37 +111,33 @@ $(document).on('ready', function() {
 		$('body').animate({scrollTop:$('#pw-form').offset().top}, 500);
 	})
 
-	$('form').on('submit', function(e){
+	$('#pw-form').on('submit', function(e){
 		//encrypt the base64data that is to be sent to the recipient
 		e.preventDefault();
 
+		$('#show-form').slideToggle();
+
+
 		var password = $('.encrypt-pw').val();
 
-		//returns pixel data
-		var pixelArr = getCanvasImgData($('canvas'))
+		var encryptedData = encryptLoadedImage('loaded-img', password);
 
-		//turns pixel data to string of characters
-		var stringifyedArray = arrayToString(pixelArr);
+		var dimensions = getDimensions("loaded-img");
 
-		//AES encryption of pixel data
-		var encrypted = CryptoJS.AES.encrypt(stringifyedArray, password);
+		// var imageObjectForStorage = new ImageObject(encryptedData, dimensions.width, dimensions.height);
 
+		
+		// var stringifiedObject = JSON.stringify(imageObjectForStorage.tempArray);
 
-		//base64 encode encrypted image data
-		//ensure transmit of data without loss or modification
-		var encoded = stringToBase64(encrypted);
+		var uniqueId = generateUID();
 
-		//store encoded data in localStorage
-		localStorage.setItem('encodedImage', encoded);
+		localStorage.setItem(uniqueId, encryptedData);
 
 
+		var newUrl = $('<a target="_blank" href="localhost:8012/#'+uniqueId+'">localhost:8012/#'+uniqueId+'<a>');
 
-		//AES decryption of pixel data
-		var decrypted = CryptoJS.AES.decrypt(encrypted, password);
-		var decryptToUTF = decrypted.toString(CryptoJS.enc.Utf8);
 
-		//convert decrypted pixel array data to array
-		var pixelArr = stringToArray(decryptToUTF);
+		$('.display-url').append(newUrl);
 
 
 
