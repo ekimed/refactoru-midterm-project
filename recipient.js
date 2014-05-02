@@ -4,14 +4,15 @@
 // 	return decodedData;
 // }
 
-function drawNewImg(pixelArrayData){
+function drawNewImg(pixelArrayData, width, height){
 	var newCanvas = document.createElement("canvas")
+	newCanvas.setAttribute("id", "new-canvas");
 
-	newCanvas.width = 800;
-	newCanvas.height = 1000;
+	newCanvas.width = width;
+	newCanvas.height = height;
 	var ctx = newCanvas.getContext("2d");
 
-	var palette = ctx.getImageData(0,0,442,656);
+	var palette = ctx.getImageData(0,0,width,height);
 
 	palette.data.set(new Uint8ClampedArray(pixelArrayData));
 
@@ -28,18 +29,23 @@ $(document).on('ready', function() {
 		$('#recipient').toggle();
 		var keyValue = window.location.hash.substr(1);
 
-		var data = localStorage.getItem(keyValue);
+		var item = localStorage.getItem(keyValue);
+		var object = JSON.parse(item);
+		var data = object["encryptedData"];
+		var width = object["width"];
+		var height = object["height"];
 
 		$('#re-pw-form').on('submit', function(e){
 			e.preventDefault();
 			var password = $('#re-pw').val();
+
 			var decrypted = CryptoJS.AES.decrypt(data, password);
 			var decryptToUTF = decrypted.toString(CryptoJS.enc.Utf8);
 			var newpixelArr = stringToArray(decryptToUTF);
-			console.log(newpixelArr);
+
 			
-			var newCanvas = drawNewImg(newpixelArr);
-			$('.decrypted-img').append(newCanvas);
+			var newCanvas = drawNewImg(newpixelArr, width, height);
+			$(newCanvas).hide().appendTo('.decrypted-img').fadeIn(1000);
 			$('#re-pw-form').toggle();
 		});
 

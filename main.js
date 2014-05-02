@@ -68,7 +68,9 @@ function stringToArray(string){
 	return arr;
 }
 
-//generates a unique hash value
+//generates a unique 4-character alphanumeric sequence
+//generate random number
+//number greater than 9 converted to character by providing a radix of 36
 function generateUID() {
     return ("0000" + (Math.random()*Math.pow(36,4) << 0).toString(36)).slice(-4)
 }
@@ -78,7 +80,6 @@ function encryptLoadedImage($canvas, password){
 	var pixelArr = getCanvasImgData($canvas);
 	var stringifyedArray = arrayToString(pixelArr);
 	var encryptedImageData = CryptoJS.AES.encrypt(stringifyedArray, password);
-
 	return encryptedImageData;
 }
 
@@ -88,8 +89,8 @@ var ImageObject = function(encryptedData, width, height){
 	this.height = height;
 }
 
-
 $(document).on('ready', function() {
+	// localStorage.clear();
 
 	$('label').click(function(){
 		$("input:file").click();
@@ -112,36 +113,68 @@ $(document).on('ready', function() {
 	})
 
 	$('#pw-form').on('submit', function(e){
-		//encrypt the base64data that is to be sent to the recipient
 		e.preventDefault();
 
 		$('#show-form').slideToggle();
 
-
-		var password = $('.encrypt-pw').val();
-
-		var encryptedData = encryptLoadedImage('loaded-img', password);
-
-		var dimensions = getDimensions("loaded-img");
-
-		// var imageObjectForStorage = new ImageObject(encryptedData, dimensions.width, dimensions.height);
-
 		
-		// var stringifiedObject = JSON.stringify(imageObjectForStorage.tempArray);
 
+		//encrypt uploaded image
+		var password = $('.encrypt-pw').val();
+		var encryptedData = encryptLoadedImage('loaded-img', password);
+		var dimensions = getDimensions("loaded-img");
 		var uniqueId = generateUID();
+		var imageObjectForStorage = new ImageObject(encryptedData.toString(), dimensions.width, dimensions.height);		
+		var stringifiedObject = JSON.stringify(imageObjectForStorage);
 
-		localStorage.setItem(uniqueId, encryptedData);
+		//remove uploaded image
+		$('.img-container').fadeOut(1000, function(){ $(this).remove() })
+
+		//store data with uniqueId as key
+		localStorage.setItem(uniqueId, stringifiedObject);
 
 
-		var newUrl = $('<a target="_blank" href="localhost:8012/#'+uniqueId+'">localhost:8012/#'+uniqueId+'<a>');
-
-
-		$('.display-url').append(newUrl);
+		// var newUrl = $('<a target="_blank" href="localhost:8012/#'+uniqueId+'">localhost:8012/#'+uniqueId+'<a>');
+		// $('.display-url').append(newUrl);
 
 
 
-	})
+		var imgSrc = document.getElementById("loaded-img").toDataURL();
+
+		//create img tag
+		// var img = $('<img id="qbert" src="'+ imgSrc + '">')
+		// $('.img-container').append(img);
+		// $('#qbert').css('display', 'none');
+
+		//set new canvas height and width for both style and canvas
+		var qbertCanvas = $('#qbert-canvas');
+		qbertCanvas.css("width", dimensions.width); 
+		qbertCanvas.css("height", dimensions.height);
+
+		var canvas = document.getElementById("qbert-canvas");
+		canvas.width = dimensions.width;
+		canvas.height = dimensions.height;
+
+
+		//Qbertify image and load
+		new Raster(imgSrc).on('load', function() {
+			// $('#qbert').remove();
+			raster = this;
+			this.remove();
+
+			init(canvas.width, canvas.height);
+			raster.onFrame = onFrame;
+			raster.onResize = onResize;
+			$('.display-url').css('text-align', 'center');
+
+			var newUrl = $('<a target="_blank" href="localhost:8012/#'+uniqueId+'">localhost:8012/#'+uniqueId+'<a>');
+			$('.display-url').append(newUrl);
+		});
+
+
+	});
+	
+
 
 
 

@@ -15,7 +15,8 @@ h1 {
   margin: 95px auto 0;
   text-align: center;
 }
-.upload-container {
+.upload-container,
+.decrypted-img {
   text-align: center;
 }
 canvas {
@@ -48,7 +49,8 @@ form {
   background: url("images/navy_blue.png");
 }
 #password,
-.pw-submit-btn {
+.pw-submit-btn,
+.qbert-can-container {
   text-align: center;
 }
 .form-header h2 {
